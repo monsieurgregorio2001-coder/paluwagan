@@ -1,4 +1,4 @@
-import { activePayout, effectiveContribution, summarize } from '../domain/ledger'
+import { activePayout, arrearsItems, effectiveContribution, summarize, type ArrearsItem } from '../domain/ledger'
 import { assessRisk, buildHistory, outstandingCycle, type RiskAssessment } from '../domain/risk'
 import { buildSchedule, currentCycle, potSizeCentavos } from '../domain/rotation'
 import type { Entry, Group, Member } from '../domain/types'
@@ -17,6 +17,10 @@ export interface GroupInfo {
   collected: number
   risks: Map<string, RiskAssessment>
   outstanding: Map<string, number | null>
+  /** Arrears per member and cycle, including settled ones. */
+  arrears: ArrearsItem[]
+  /** Total arrears still owed in the group. */
+  arrearsTotal: number
 }
 
 export function groupInfo(group: Group, entries: readonly Entry[], today: string): GroupInfo {
@@ -35,6 +39,7 @@ export function groupInfo(group: Group, entries: readonly Entry[], today: string
     risks.set(m.id, assessRisk(buildHistory(schedule, entries, m.id, today)))
     outstanding.set(m.id, outstandingCycle(schedule, entries, m.id, today))
   }
+  const arrears = arrearsItems(entries)
   return {
     schedule,
     cycle,
@@ -48,6 +53,8 @@ export function groupInfo(group: Group, entries: readonly Entry[], today: string
     collected,
     risks,
     outstanding,
+    arrears,
+    arrearsTotal: arrears.reduce((t, a) => t + a.outstanding, 0),
   }
 }
 
@@ -57,4 +64,12 @@ export function cycleStatus(group: Group, entries: readonly Entry[], cycle: numb
     return e && e.status !== 'missed'
   }).length
   return { paid, payout: activePayout(entries, cycle) }
+}
+
+/** Payout state of one cycle, including any shortfall caused by missed or short contributions. */
+export function payoutState(entries: readonly Entry[], cycle: number) {
+  const items = arrearsItems(entries).filter((a) => a.cycle === cycle)
+  const owed = items.reduce((t, a) => t + a.owed, 0)
+  const shortfall = items.reduce((t, a) => t + a.outstanding, 0)
+  return { owed, shortfall, debtors: items.filter((a) => a.outstanding > 0).map((a) => a.memberId) }
 }

@@ -143,7 +143,7 @@ export function CreateGroup() {
             </p>
           </div>
         )}
-        <h3>Payout order preview</h3>
+        <h2 className="card-title">Payout order preview</h2>
         {order.length === 0 ? <p className="muted">Add member names to see the order.</p> : (
           <ol style={{ margin: 0, paddingLeft: '1.4rem' }}>
             {order.map((n, i) => (

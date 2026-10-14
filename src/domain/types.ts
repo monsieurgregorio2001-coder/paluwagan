@@ -28,7 +28,7 @@ export interface Entry {
   seq: number
   /** ISO timestamp of when the entry was appended. */
   ts: string
-  type: 'contribution' | 'payout' | 'reversal'
+  type: 'contribution' | 'payout' | 'arrears' | 'reversal'
   cycle: number
   memberId: string
   /** Positive integer centavos. Zero only for missed contributions. */
@@ -36,7 +36,14 @@ export interface Entry {
   status?: ContributionStatus
   paidDate?: string
   daysLate?: number
+  /**
+   * Centavos this contribution fell short of the amount due, set when the entry is recorded.
+   * A missed contribution carries the full amount due. The member owes it as arrears.
+   */
+  shortfall?: number
+  /** Arrears payments only: true when the cycle payout was already made, so the money is passed straight to the recipient. */
+  forwarded?: boolean
   reverses?: string
-  reversedType?: 'contribution' | 'payout'
+  reversedType?: 'contribution' | 'payout' | 'arrears'
   note?: string
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  LedgerError, activePayout, effectiveContribution, reconciles, recordContribution, recordPayout, reverseEntry, summarize,
+  LedgerError, activePayout, arrearsItems, arrearsOutstanding, cycleShortfall, effectiveContribution, memberArrears, reconciles, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, summarize,
 } from './ledger'
 import { addDays } from './dates'
 import { makeRng } from './rotation'
@@ -74,6 +74,7 @@ describe('ledger basics', () => {
 
 describe('ledger property tests', () => {
   it('always reconciles, never goes negative, and is append-only under random operations', () => {
+    let arrearsEntries = 0
     for (let seed = 1; seed <= 40; seed++) {
       const rng = makeRng(seed)
       const pick = <T>(xs: T[]): T => xs[Math.floor(rng() * xs.length)]
@@ -85,13 +86,18 @@ describe('ledger property tests', () => {
         const cycle = 1 + Math.floor(rng() * 5)
         const due = addDays('2026-01-01', cycle * 7)
         try {
-          if (roll < 0.5) {
+          if (roll < 0.4) {
             const status = pick(['on_time', 'late', 'missed'] as const)
             const amount = (1 + Math.floor(rng() * 5000)) * 100 + Math.floor(rng() * 100)
             entries = recordContribution(entries, {
-              cycle, memberId: pick(members), status, amount, dueDate: due, paidDate: status === 'late' ? addDays(due, 1 + Math.floor(rng() * 20)) : undefined,
+              cycle, memberId: pick(members), status, amount, expected: 500000, dueDate: due, paidDate: status === 'late' ? addDays(due, 1 + Math.floor(rng() * 20)) : undefined,
             }, T)
-          } else if (roll < 0.7) {
+          } else if (roll < 0.55) {
+            const open = arrearsItems(entries).filter((i) => i.outstanding > 0)
+            const target = open.length ? pick(open) : { memberId: pick(members), cycle, outstanding: 1 }
+            const amount = rng() < 0.3 ? target.outstanding + 1 : 1 + Math.floor(rng() * target.outstanding)
+            entries = recordArrearsPayment(entries, { cycle: target.cycle, memberId: target.memberId, amount }, T)
+          } else if (roll < 0.72) {
             entries = recordPayout(entries, { cycle, memberId: pick(members), amount: 1 + Math.floor(rng() * 300000) }, T)
           } else if (entries.length) {
             entries = reverseEntry(entries, pick(entries).id, 'random correction', T)
@@ -105,18 +111,26 @@ describe('ledger property tests', () => {
         expect(s.contributions).toBe(s.payouts + s.potBalance)
         expect(s.potBalance).toBeGreaterThanOrEqual(0)
         expect(Number.isInteger(s.potBalance)).toBe(true)
+        // Arrears are whole centavos, never negative, and settled never exceeds owed.
+        for (const a of arrearsItems(entries)) {
+          expect(Number.isInteger(a.outstanding)).toBe(true)
+          expect(a.outstanding).toBeGreaterThanOrEqual(0)
+          expect(a.settled).toBeLessThanOrEqual(a.owed)
+        }
         // Append-only: earlier entries are untouched.
         expect(entries.slice(0, prev.length)).toEqual(prev)
         expect(entries.length).toBeGreaterThanOrEqual(prev.length)
       }
       expect(entries.length).toBeGreaterThan(40)
       expect(entries.some((e) => e.type === 'reversal')).toBe(true)
+      arrearsEntries += entries.filter((e) => e.type === 'arrears').length
       // Sequence numbers and ids are contiguous.
       entries.forEach((e, i) => {
         expect(e.seq).toBe(i + 1)
         expect(e.id).toBe(`E${i + 1}`)
       })
     }
+    expect(arrearsEntries).toBeGreaterThan(100)
   })
 
   it('reversing every active entry newest first returns the pot to zero', () => {
@@ -133,5 +147,89 @@ describe('ledger property tests', () => {
     const originals = entries.filter((e) => e.type !== 'reversal')
     for (const e of [...originals].reverse()) entries = reverseEntry(entries, e.id, 'unwind', T)
     expect(summarize(entries)).toEqual({ contributions: 0, payouts: 0, potBalance: 0 })
+  })
+})
+
+describe('arrears', () => {
+  const due = 500000
+  const miss = (e: Entry[], memberId = 'a', cycle = 1) =>
+    recordContribution(e, { cycle, memberId, status: 'missed', amount: 0, expected: due, dueDate: '2026-01-05' }, T)
+  const pay = (e: Entry[], memberId = 'b', cycle = 1) =>
+    recordContribution(e, { cycle, memberId, status: 'on_time', amount: due, expected: due, dueDate: '2026-01-05' }, T)
+
+  it('turns a missed contribution into arrears for that member', () => {
+    const e = miss(pay([]))
+    expect(arrearsItems(e)).toEqual([{ memberId: 'a', cycle: 1, owed: due, settled: 0, outstanding: due }])
+    expect(memberArrears(e, 'a')).toBe(due)
+    expect(memberArrears(e, 'b')).toBe(0)
+    expect(cycleShortfall(e, 1)).toBe(due)
+  })
+
+  it('turns an underpayment into arrears for the difference', () => {
+    const e = recordContribution([], { ...base, status: 'on_time', amount: 320000, expected: due }, T)
+    expect(arrearsOutstanding(e, 'a', 1)).toBe(180000)
+  })
+
+  it('settles arrears with an append-only entry that keeps the ledger reconciled', () => {
+    let e = miss(pay([]))
+    const before = JSON.parse(JSON.stringify(e))
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 200000 }, T)
+    expect(e.slice(0, before.length)).toEqual(before)
+    expect(e[e.length - 1]).toMatchObject({ type: 'arrears', amount: 200000, forwarded: false })
+    expect(arrearsOutstanding(e, 'a', 1)).toBe(300000)
+    expect(summarize(e)).toEqual({ contributions: 700000, payouts: 0, potBalance: 700000 })
+    expect(reconciles(e)).toBe(true)
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 300000 }, T)
+    expect(arrearsOutstanding(e, 'a', 1)).toBe(0)
+    expect(reconciles(e)).toBe(true)
+  })
+
+  it('passes the money to the recipient when the cycle payout was already short', () => {
+    let e = miss(pay([]))
+    e = recordPayout(e, { cycle: 1, memberId: 'r', amount: due }, T)
+    expect(summarize(e).potBalance).toBe(0)
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: due }, T)
+    expect(e[e.length - 1].forwarded).toBe(true)
+    expect(summarize(e)).toEqual({ contributions: 2 * due, payouts: 2 * due, potBalance: 0 })
+    expect(reconciles(e)).toBe(true)
+  })
+
+  it('never lets arrears go negative', () => {
+    let e = miss([])
+    expect(() => recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: due + 1 }, T)).toThrow(LedgerError)
+    expect(() => recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 0 }, T)).toThrow(LedgerError)
+    expect(() => recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 10.5 }, T)).toThrow(LedgerError)
+    expect(() => recordArrearsPayment(e, { cycle: 1, memberId: 'b', amount: 100 }, T)).toThrow(LedgerError)
+    expect(() => recordArrearsPayment(e, { cycle: 2, memberId: 'a', amount: 100 }, T)).toThrow(LedgerError)
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: due }, T)
+    expect(() => recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 1 }, T)).toThrow(LedgerError)
+  })
+
+  it('blocks a reversal that would strand an arrears payment', () => {
+    let e = miss([])
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 100000 }, T)
+    expect(() => reverseEntry(e, 'E1', 'wrong', T)).toThrow(LedgerError)
+    e = reverseEntry(e, 'E2', 'wrong amount', T)
+    expect(arrearsOutstanding(e, 'a', 1)).toBe(due)
+    expect(reconciles(e)).toBe(true)
+    e = reverseEntry(e, 'E1', 'recorded by mistake', T)
+    expect(arrearsItems(e)).toEqual([])
+  })
+
+  it('does not let a later payment push settled arrears above what is owed', () => {
+    let e = miss([])
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 100000 }, T)
+    expect(() => recordContribution(e, { cycle: 1, memberId: 'a', status: 'late', amount: due, expected: due, dueDate: '2026-01-05', paidDate: '2026-01-09' }, T)).toThrow(LedgerError)
+  })
+
+  it('reverses a forwarded arrears payment symmetrically', () => {
+    let e = miss(pay([]))
+    e = recordPayout(e, { cycle: 1, memberId: 'r', amount: due }, T)
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: due }, T)
+    const s = summarize(e)
+    e = reverseEntry(e, 'E4', 'paid by mistake', T)
+    expect(summarize(e)).toEqual({ contributions: s.contributions - due, payouts: s.payouts - due, potBalance: s.potBalance })
+    expect(arrearsOutstanding(e, 'a', 1)).toBe(due)
+    expect(reconciles(e)).toBe(true)
   })
 })

@@ -1,6 +1,6 @@
 import type { AppState } from './seed'
 
-const KEY = 'online-paluwagan:v1'
+const KEY = 'online-paluwagan:v2'
 
 let memory: string | null = null
 let persistent = false

@@ -5,6 +5,9 @@ import { CreateGroup } from './CreateGroup'
 import { GroupList } from './GroupList'
 import { GroupView } from './GroupView'
 
+const PORTFOLIO = 'https://monsieurgregorio2001-coder.github.io/'
+const CODE = 'https://github.com/monsieurgregorio2001-coder/paluwagan'
+
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
   useEffect(() => {
@@ -32,18 +35,47 @@ export function App() {
 
   let page
   if (parts[0] === 'new') page = <CreateGroup />
-  else if (parts[0] === 'g' && group) page = <GroupView group={group} tab={parts[2] ?? 'dashboard'} />
+  else if (parts[0] === 'g' && group) page = <GroupView group={group} tab={parts[2] ?? 'dashboard'} focus={parts[3]} />
   else if (parts[0] === 'g') page = <div className="card"><h1>Group not found</h1><p><a href="#/">Back to all groups</a></p></div>
   else page = <GroupList />
 
   return (
     <>
       <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); main.current?.focus() }}>Skip to content</a>
-      <div className="banner" role="note">Demo only. No real money moves and no data leaves your device.</div>
-      <div className="shell">
-        <header className="topbar">
-          <a className="brand" href="#/">Online Paluwagan</a>
-          <div className="row">
+      <header className="site-header">
+        <div className="wrap bar">
+          <nav className="crumbs" aria-label="Site">
+            <a className="owner" href={PORTFOLIO}>Garfield Lim</a>
+            <span className="slash" aria-hidden="true">/</span>
+            <a className="project" href="#/">Online Paluwagan</a>
+          </nav>
+          <a className="code-link" href={CODE}>Code</a>
+        </div>
+      </header>
+      <aside className="banner" aria-label="Demo notice">
+        <div className="wrap">Demo only. No real money moves and no data leaves your device.</div>
+      </aside>
+      <div className="wrap shell">
+        {!isPersistent() && (
+          <div className="notice" role="status">Browser storage is unavailable, so your changes are kept in memory only and will be lost when you close or reload this page.</div>
+        )}
+        <main id="main" ref={main} tabIndex={-1}>
+          {page}
+        </main>
+      </div>
+      <footer className="site-footer">
+        <div className="wrap">
+          <p className="disclaimer">
+            This is a portfolio demo and not a financial service. It does not hold, move, or lend money. The reminder drafts are pre-written templates and nothing is ever sent.
+          </p>
+          <p className="credits">
+            Built by Garfield Greg Lim III <span aria-hidden="true">·</span>{' '}
+            <a href={PORTFOLIO}>Portfolio</a> <span aria-hidden="true">·</span>{' '}
+            <a href="https://github.com/monsieurgregorio2001-coder">GitHub</a> <span aria-hidden="true">·</span>{' '}
+            <a href="https://www.linkedin.com/in/garfield-lim-8239242a9">LinkedIn</a> <span aria-hidden="true">·</span>{' '}
+            <a href="mailto:lim.ggreg@outlook.com">lim.ggreg@outlook.com</a>
+          </p>
+          <div className="reset">
             {confirmReset ? (
               <>
                 <span className="small">Replace all data with the demo groups?</span>
@@ -54,17 +86,8 @@ export function App() {
               <button className="btn small" onClick={() => setConfirmReset(true)}>Reset demo data</button>
             )}
           </div>
-        </header>
-        {!isPersistent() && (
-          <div className="notice" role="status">Browser storage is unavailable, so your changes are kept in memory only and will be lost when you close or reload this page.</div>
-        )}
-        <main id="main" ref={main} tabIndex={-1} style={{ outline: 'none' }}>
-          {page}
-        </main>
-        <footer className="muted small" style={{ marginTop: 24 }}>
-          A portfolio demo by Garfield Greg Lim III. This is not a financial service and it does not hold, move or lend money.
-        </footer>
-      </div>
+        </div>
+      </footer>
     </>
   )
 }

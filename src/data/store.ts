@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { todayManila } from '../domain/dates'
-import { LedgerError, recordContribution, recordPayout, reverseEntry, type ContributionInput, type PayoutInput } from '../domain/ledger'
+import { LedgerError, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, type ArrearsInput, type ContributionInput, type PayoutInput } from '../domain/ledger'
 import { approveDraft, editDraft, sendDraft, type Draft } from '../domain/reminders'
 import type { Group } from '../domain/types'
 import { buildSeed, type AppState } from './seed'
@@ -54,6 +54,12 @@ export const actions = {
   recordPayout(groupId: string, input: PayoutInput): string | null {
     return guard(() => {
       const next = recordPayout(state.ledgers[groupId] ?? [], input, nowIso())
+      commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
+    })
+  },
+  recordArrears(groupId: string, input: ArrearsInput): string | null {
+    return guard(() => {
+      const next = recordArrearsPayment(state.ledgers[groupId] ?? [], input, nowIso())
       commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
     })
   },

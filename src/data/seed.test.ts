@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildSeed } from './seed'
-import { reconciles, summarize } from '../domain/ledger'
+import { arrearsItems, cycleShortfall, memberArrears, reconciles, summarize, activePayout } from '../domain/ledger'
 import { buildHistory, assessRisk } from '../domain/risk'
 import { buildSchedule, currentCycle, shuffleWithSeed } from '../domain/rotation'
 
@@ -36,5 +36,14 @@ describe('seed data', () => {
   it('stores a reproducible seeded order', () => {
     const g = s.groups[1]
     expect(shuffleWithSeed(g.seedInput!, g.seed!)).toEqual(g.members.map((m) => m.name))
+  })
+  it('turns missed payments into arrears and short payouts', () => {
+    const weekly = s.ledgers['demo-weekly']
+    expect(memberArrears(weekly, 'w4')).toBe(100000)
+    expect(cycleShortfall(weekly, 2)).toBe(100000)
+    expect(activePayout(weekly, 2)?.amount).toBe(500000)
+    const monthly = s.ledgers['demo-monthly']
+    expect(memberArrears(monthly, 'm6')).toBe(1000000)
+    expect(arrearsItems(monthly).every((a) => a.outstanding >= 0)).toBe(true)
   })
 })

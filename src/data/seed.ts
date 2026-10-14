@@ -34,12 +34,12 @@ function buildLedger(group: Group, patterns: Pattern[], today: string): Entry[] 
       const p = patterns[i][c - 1]
       if (p === '-' || p === undefined) return
       if (p === 'o') {
-        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'on_time', amount: group.contributionCentavos, dueDate: due }, stamp(due))
+        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'on_time', amount: group.contributionCentavos, expected: group.contributionCentavos, dueDate: due }, stamp(due))
       } else if (p === 'm') {
-        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'missed', amount: 0, dueDate: due, note: 'No payment by the end of the cycle' }, stamp(addDays(due, 3)))
+        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'missed', amount: 0, expected: group.contributionCentavos, dueDate: due, note: 'No payment by the end of the cycle' }, stamp(addDays(due, 3)))
       } else {
         const paid = addDays(due, p as number)
-        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'late', amount: group.contributionCentavos, dueDate: due, paidDate: paid }, stamp(paid, 14))
+        entries = recordContribution(entries, { cycle: c, memberId: m.id, status: 'late', amount: group.contributionCentavos, expected: group.contributionCentavos, dueDate: due, paidDate: paid }, stamp(paid, 14))
       }
     })
     if (c < current) {
