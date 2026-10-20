@@ -86,6 +86,10 @@ Node 18.20 or newer works. The app is served under the `/paluwagan/` base path.
 
 Built by Garfield Greg Lim III. [Portfolio](https://monsieurgregorio2001-coder.github.io/). Fonts: Fraunces, Inter, and JetBrains Mono through Fontsource, under the SIL Open Font License.
 
+## Development conventions
+
+Start with [local project context](docs/CONTEXT.md) and [agent instructions](AGENTS.md). Shared structure, review, and spec practices live in the [portfolio hub repository](https://github.com/monsieurgregorio2001-coder/monsieurgregorio2001-coder.github.io), under CONTRIBUTING.md and docs/portfolio/. Small fixes use a short verification record; material behavior changes use a focused spec.
+
 ## License
 
 MIT. Copyright (c) 2026 Garfield Greg Lim III.
