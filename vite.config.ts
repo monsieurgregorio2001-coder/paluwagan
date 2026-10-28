@@ -23,10 +23,12 @@ const houseTags: PluginOption = {
     order: 'post',
     handler(html) {
       const css = '<link rel="stylesheet" href="/house/2.0.1/tokens.css" />\n    <link rel="stylesheet" href="/house/2.0.1/house.css" />\n    '
+      const door = '<script src="/house/2.0.1/doorway.js"></script>\n    '
       const js = '<script type="module" src="/house/2.0.1/house.js"></script>\n  '
       const at = html.search(/<link rel="stylesheet"[^>]*assets\//)
       const withCss = at >= 0 ? html.slice(0, at) + css + html.slice(at) : html.replace('</head>', css + '</head>')
-      return withCss.replace('</head>', js + '</head>')
+      // doorway.js is a classic script in <head> so pagereveal is never missed (DIRECTION 4.5).
+      return withCss.replace('</head>', door + js + '</head>')
     },
   },
 }
