@@ -1,3 +1,4 @@
+import { booksFromEntries } from '../domain/books'
 import type { AppState } from './seed'
 
 const KEY = 'online-paluwagan:v2'
@@ -29,7 +30,11 @@ export function loadState(): AppState | null {
     const raw = s ? s.getItem(KEY) : memory
     if (!raw) return null
     const parsed = JSON.parse(raw) as AppState
-    if (parsed && parsed.version === 1 && Array.isArray(parsed.groups) && parsed.ledgers && Array.isArray(parsed.drafts)) return parsed
+    if (parsed && parsed.version === 1 && Array.isArray(parsed.groups) && parsed.ledgers && Array.isArray(parsed.drafts)) {
+      // Saved data from before the books existed: write the books once from the entries, then keep them in step.
+      if (!parsed.books) parsed.books = Object.fromEntries(Object.entries(parsed.ledgers).map(([id, e]) => [id, booksFromEntries(e)]))
+      return parsed
+    }
     return null
   } catch {
     return null

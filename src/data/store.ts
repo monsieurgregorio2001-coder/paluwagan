@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 import { todayManila } from '../domain/dates'
 import { LedgerError, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, type ArrearsInput, type ContributionInput, type PayoutInput } from '../domain/ledger'
 import { approveDraft, editDraft, sendDraft, type Draft } from '../domain/reminders'
-import type { Group } from '../domain/types'
+import type { Entry, Group } from '../domain/types'
+import { appendToBooks, emptyBooks } from '../domain/books'
 import { buildSeed, type AppState } from './seed'
 import { clearState, loadState, saveState } from './storage'
 
@@ -24,6 +25,13 @@ export function useAppState(): AppState {
   return useSyncExternalStore(subscribe, () => state)
 }
 
+/** Replaces a group's ledger with a longer one and writes each new entry into the books at the same moment. */
+function commitLedger(groupId: string, next: Entry[]): void {
+  const old = state.ledgers[groupId] ?? []
+  const books = next.slice(old.length).reduce(appendToBooks, state.books[groupId] ?? emptyBooks())
+  commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next }, books: { ...state.books, [groupId]: books } })
+}
+
 const nowIso = () => new Date().toISOString()
 
 /** Runs a ledger change. Returns an error message or null on success. */
@@ -39,7 +47,7 @@ function guard(fn: () => void): string | null {
 
 export const actions = {
   addGroup(group: Group): void {
-    commit({ ...state, groups: [...state.groups, group], ledgers: { ...state.ledgers, [group.id]: [] } })
+    commit({ ...state, groups: [...state.groups, group], ledgers: { ...state.ledgers, [group.id]: [] }, books: { ...state.books, [group.id]: emptyBooks() } })
   },
   resetDemo(): void {
     clearState()
@@ -48,25 +56,25 @@ export const actions = {
   recordContribution(groupId: string, input: ContributionInput): string | null {
     return guard(() => {
       const next = recordContribution(state.ledgers[groupId] ?? [], input, nowIso())
-      commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
+      commitLedger(groupId, next)
     })
   },
   recordPayout(groupId: string, input: PayoutInput): string | null {
     return guard(() => {
       const next = recordPayout(state.ledgers[groupId] ?? [], input, nowIso())
-      commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
+      commitLedger(groupId, next)
     })
   },
   recordArrears(groupId: string, input: ArrearsInput): string | null {
     return guard(() => {
       const next = recordArrearsPayment(state.ledgers[groupId] ?? [], input, nowIso())
-      commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
+      commitLedger(groupId, next)
     })
   },
   reverse(groupId: string, entryId: string, note: string): string | null {
     return guard(() => {
       const next = reverseEntry(state.ledgers[groupId] ?? [], entryId, note, nowIso())
-      commit({ ...state, ledgers: { ...state.ledgers, [groupId]: next } })
+      commitLedger(groupId, next)
     })
   },
   /** Inserts or replaces a draft, unless the stored one is already approved or sent. */

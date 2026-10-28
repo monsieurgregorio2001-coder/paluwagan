@@ -8,6 +8,7 @@ export interface ReminderVars {
   amount: string
   dueDate: string
   groupName: string
+  cycle: string
 }
 
 export const LANGS: Lang[] = ['en', 'fil']
@@ -15,31 +16,31 @@ export const TONES: Tone[] = ['polite', 'firm', 'final']
 export const LANG_LABEL: Record<Lang, string> = { en: 'English', fil: 'Filipino' }
 export const TONE_LABEL: Record<Tone, string> = { polite: 'Polite', firm: 'Firm', final: 'Final' }
 
-export const AI_LABEL = 'Pre-written reminder template. You edit and approve it before it can be sent. Sending is simulated.'
+export const TEMPLATE_LABEL = 'Pre-written reminder templates. You edit and approve. Sending is simulated.'
 
 /** Pre-written templates. Nothing here calls a model at runtime. */
 export const TEMPLATES: Record<Lang, Record<Tone, string>> = {
   en: {
     polite:
-      'Hi {name}, a friendly reminder that your contribution of {amount} to {groupName} was due on {dueDate}. ' +
+      'Hi {name}, a friendly reminder that your cycle {cycle} contribution of {amount} to {groupName} was due on {dueDate}. ' +
       'If you have already paid, please ignore this message. Otherwise, could you send it when you are able? Thank you very much!',
     firm:
-      'Hello {name}, your contribution of {amount} to {groupName} was due on {dueDate} and we have not received it yet. ' +
+      'Hello {name}, your cycle {cycle} contribution of {amount} to {groupName} was due on {dueDate} and we have not received it yet. ' +
       'Please pay as soon as possible so the pot can be released on time to the recipient for this cycle. Please let us know if there is a problem.',
     final:
-      '{name}, this is our final reminder. The {amount} contribution to {groupName} due on {dueDate} is still unpaid. ' +
-      'If we do not receive it within two days, the group will need to discuss how to handle it. We would much prefer to sort this out with you first. Thank you.',
+      '{name}, this is our final reminder. The {amount} contribution to {groupName} for cycle {cycle}, due on {dueDate}, is still unpaid. ' +
+      'If we do not receive it soon, the group will need to discuss how to handle it. We would much prefer to sort this out with you first. Thank you.',
   },
   fil: {
     polite:
-      'Magandang araw, {name}! Paalala lang po na ang kontribusyon ninyo na {amount} para sa {groupName} ay due noong {dueDate}. ' +
+      'Magandang araw, {name}! Paalala lang po na ang kontribusyon ninyo na {amount} para sa {groupName}, cycle {cycle}, ay due noong {dueDate}. ' +
       'Kung nabayaran na po ninyo, pasensya na sa abala. Kung hindi pa, maaari po bang maipadala kapag may pagkakataon na? Maraming salamat po!',
     firm:
-      'Kumusta, {name}. Lampas na po sa takdang petsa ({dueDate}) ang kontribusyon ninyo na {amount} sa {groupName} at hindi pa po namin ito natatanggap. ' +
+      'Kumusta, {name}. Lampas na po sa takdang petsa ({dueDate}) ang kontribusyon ninyo na {amount} sa {groupName}, cycle {cycle}, at hindi pa po namin ito natatanggap. ' +
       'Pakibayaran po sa lalong madaling panahon para maibigay sa tamang oras ang pot sa tatanggap ngayong cycle. Sabihin lang po sa amin kung may problema.',
     final:
-      '{name}, ito na po ang huling paalala. Hindi pa rin po namin natatanggap ang {amount} para sa {groupName} na due noong {dueDate}. ' +
-      'Kung hindi ito maisasaayos sa loob ng dalawang araw, kailangan po itong pag-usapan ng grupo. Mas gusto po naming maayos muna natin ito. Salamat po sa pang-unawa.',
+      '{name}, ito na po ang huling paalala. Hindi pa rin po namin natatanggap ang {amount} para sa {groupName}, cycle {cycle}, na due noong {dueDate}. ' +
+      'Kung hindi ito maisasaayos agad, kailangan po itong pag-usapan ng grupo. Mas gusto po naming maayos muna natin ito. Salamat po sa pang-unawa.',
   },
 }
 
