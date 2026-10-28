@@ -49,9 +49,9 @@ export function CreateGroup() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) return setError('Please enter a group name.')
-    if (centavos === null || centavos <= 0) return setError('Please enter a contribution amount in pesos, for example 1,000 or 1,000.50.')
-    if (!isValidDate(startDate)) return setError('Please choose a valid start date.')
+    if (!name.trim()) return setError('Enter a group name.')
+    if (centavos === null || centavos <= 0) return setError('Enter a contribution amount in pesos, for example 1,000 or 1,000.50.')
+    if (!isValidDate(startDate)) return setError('Choose a valid start date.')
     if (cleaned.length < 2) return setError('A group needs at least 2 members.')
     if (new Set(cleaned.map((c) => c.toLowerCase())).size !== cleaned.length) return setError('Each member name must be different.')
     if (method === 'seeded' && !seed.trim()) return setError('Enter a seed or press Randomize order.')

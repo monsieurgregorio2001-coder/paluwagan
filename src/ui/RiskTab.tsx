@@ -8,7 +8,7 @@ import {
 } from '../domain/reminders'
 import type { Entry, Group, Member } from '../domain/types'
 import type { GroupInfo } from './groupInfo'
-import { arrearsItems } from '../domain/ledger'
+import { arrearsItems, cycleOutstanding } from '../domain/ledger'
 import { Badge, ErrorMsg, Money, RiskBadge } from './shared'
 
 interface Props { group: Group; entries: Entry[]; info: GroupInfo; today: string; drafts: Draft[] }
@@ -50,9 +50,9 @@ export function RiskTab({ group, entries, info, drafts }: Props) {
               )}
               {needsReminder(risk) && (
                 cycle === null ? (
-                  <p className="muted small">No payment is outstanding, so no reminder is needed. Watch the next due date.</p>
+                  <p className="muted small">Nothing is owed. No reminder needed.</p>
                 ) : (
-                  <Reminders group={group} member={m} cycle={cycle} dueDate={info.schedule[cycle - 1].dueDate} tone={suggestTone(risk)} drafts={drafts} />
+                  <Reminders group={group} entries={entries} member={m} cycle={cycle} dueDate={info.schedule[cycle - 1].dueDate} tone={suggestTone(risk)} drafts={drafts} />
                 )
               )}
             </section>
@@ -78,11 +78,11 @@ export function RiskTab({ group, entries, info, drafts }: Props) {
   )
 }
 
-function Reminders({ group, member, cycle, dueDate, tone: suggested, drafts }: { group: Group; member: Member; cycle: number; dueDate: string; tone: Tone; drafts: Draft[] }) {
+function Reminders({ group, entries, member, cycle, dueDate, tone: suggested, drafts }: { group: Group; entries: readonly Entry[]; member: Member; cycle: number; dueDate: string; tone: Tone; drafts: Draft[] }) {
   const stored = (lang: Lang) => drafts.find((d) => d.id === draftId(group.id, member.id, cycle, lang))
   const tone = stored('en')?.tone ?? suggested
   const locked = LANGS.some((l) => stored(l) && stored(l)!.status !== 'draft')
-  const vars = { name: member.name, amount: formatPHP(group.contributionCentavos), dueDate: formatDate(dueDate), groupName: group.name }
+  const vars = { name: member.name, amount: formatPHP(cycleOutstanding(entries, member.id, cycle, group.contributionCentavos)), dueDate: formatDate(dueDate), groupName: group.name }
   const base = { groupId: group.id, memberId: member.id, memberName: member.name, cycle }
   const [open, setOpen] = useState(false)
 
