@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   LedgerError, activePayout, arrearsItems, arrearsOutstanding, cycleOutstanding, cycleShortfall, effectiveContribution, memberArrears, reconciles, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, summarize,
@@ -75,12 +76,14 @@ describe('ledger basics', () => {
 describe('ledger property tests', () => {
   it('always reconciles, never goes negative, and is append-only under random operations', () => {
     let arrearsEntries = 0
+    let operations = 0
     for (let seed = 1; seed <= 40; seed++) {
       const rng = makeRng(seed)
       const pick = <T>(xs: T[]): T => xs[Math.floor(rng() * xs.length)]
       const members = ['a', 'b', 'c', 'd', 'e']
       let entries: Entry[] = []
       for (let step = 0; step < 300; step++) {
+        operations++
         const prev = entries
         const roll = rng()
         const cycle = 1 + Math.floor(rng() * 5)
@@ -131,6 +134,8 @@ describe('ledger property tests', () => {
       })
     }
     expect(arrearsEntries).toBeGreaterThan(100)
+    // Evidence: CI reads the executed operation count from here, so the figure is measured, not typed.
+    if (process.env.EVIDENCE_OPS_FILE) writeFileSync(process.env.EVIDENCE_OPS_FILE, JSON.stringify({ operations }))
   })
 
   it('reversing every active entry newest first returns the pot to zero', () => {
