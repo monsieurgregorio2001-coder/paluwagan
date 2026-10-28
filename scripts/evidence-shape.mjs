@@ -25,6 +25,7 @@ export function validateEvidence(e) {
   })
   list('evals', (r, w) => {
     need(str(r.id) && str(r.label) && str(r.command), `${w}: id, label, command required`)
+    need(str(r.labelled_by) && str(r.limits), `${w}: labelled_by and limits required`)
     need(int(r.passed) && int(r.total) && r.passed <= r.total, `${w}: passed/total invalid`)
   })
   list('figures', (r, w) => {

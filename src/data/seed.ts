@@ -3,12 +3,15 @@ import { recordContribution, recordPayout, summarize } from '../domain/ledger'
 import { buildSchedule, currentCycle, potSizeCentavos, shuffleWithSeed } from '../domain/rotation'
 import type { Entry, Group } from '../domain/types'
 import type { Draft } from '../domain/reminders'
+import { booksFromEntries, type Books } from '../domain/books'
 
 export interface AppState {
   version: 1
   groups: Group[]
   ledgers: Record<string, Entry[]>
   drafts: Draft[]
+  /** The cycle state machine and member stubs, written when each entry is appended. */
+  books: Record<string, Books>
 }
 
 /** Payment pattern per member: 'o' on time, 'm' missed, a number is days late, '-' not yet paid. */
@@ -108,13 +111,15 @@ export function buildSeed(today: string): AppState {
     ['o', 'o', 'o', 'o', 'o'],
   ]
 
+  const ledgers = {
+    [weekly.id]: buildLedger(weekly, weeklyPatterns, today),
+    [monthly.id]: buildLedger(monthly, monthlyPatterns, today),
+  }
   return {
     version: 1,
     groups: [weekly, monthly],
-    ledgers: {
-      [weekly.id]: buildLedger(weekly, weeklyPatterns, today),
-      [monthly.id]: buildLedger(monthly, monthlyPatterns, today),
-    },
+    ledgers,
     drafts: [],
+    books: { [weekly.id]: booksFromEntries(ledgers[weekly.id]), [monthly.id]: booksFromEntries(ledgers[monthly.id]) },
   }
 }

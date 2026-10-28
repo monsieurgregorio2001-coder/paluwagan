@@ -73,7 +73,7 @@ export function CreateGroup() {
   return (
     <form onSubmit={submit} noValidate aria-labelledby="create-h">
       <h1 id="create-h">Create a group</h1>
-      <p><a href="#/">Back to all groups</a></p>
+      <p><a href="#/groups">Back to all groups</a></p>
       <div className="card">
         <div className="field">
           <label htmlFor="g-name">Group name</label>

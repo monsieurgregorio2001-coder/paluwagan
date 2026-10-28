@@ -7,17 +7,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && node scripts/house.mjs sync && vite build && node scripts/house.mjs 404",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "evidence": "node scripts/evidence.mjs",
-    "evidence:check": "node scripts/evidence-shape.mjs"
+    "evidence:check": "node scripts/evidence-shape.mjs",
+    "eval:reminders": "vite-node scripts/eval-reminders.ts",
+    "house:sync": "node scripts/house.mjs sync",
+    "house:check": "node scripts/house.mjs check",
+    "house:lock": "node scripts/house.mjs lock"
   },
   "dependencies": {
-    "@fontsource-variable/fraunces": "^5.3.0",
-    "@fontsource-variable/inter": "^5.3.0",
-    "@fontsource/jetbrains-mono": "^5.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

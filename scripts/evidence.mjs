@@ -24,6 +24,11 @@ const passed = res.numPassedTests, total = res.numTotalTests
 if (!existsSync(opsFile)) { console.error('property test did not report its operation count'); process.exit(1) }
 const operations = JSON.parse(readFileSync(opsFile, 'utf8')).operations
 
+const evalFile = join(tmp, 'eval-reminders.json')
+const ev = spawnSync('npm', ['run', '--silent', 'eval:reminders', '--', '--json', evalFile], { stdio: ['ignore', 'inherit', 'inherit'] })
+if (!existsSync(evalFile)) { console.error('the reminder eval wrote no result'); process.exit(1) }
+const rubric = JSON.parse(readFileSync(evalFile, 'utf8'))
+
 const jsGz = readdirSync(join(dist, 'assets')).filter((f) => f.endsWith('.js'))
   .reduce((n, f) => n + gzipSync(readFileSync(join(dist, 'assets', f))).length, 0)
 
@@ -40,7 +45,10 @@ const evidence = {
   ran_at: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
   runner,
   tests: [{ id: 'unit', label: 'Unit and property tests', passed, total, command: 'npx vitest run' }],
-  evals: [],
+  evals: [{
+    id: 'reminder-rubric', label: 'Reminder drafts scored on four rules', passed: rubric.passed, total: rubric.total,
+    command: 'npm run eval:reminders', labelled_by: 'evals/reminders.md', limits: 'Tone is not scored.',
+  }],
   figures: [{ id: 'ops', value: operations, unit: 'operations', label: 'random ledger operations, 0 mismatches', source: PROPERTY_TEST }],
   budgets: [{ id: 'js-gz', limit: JS_GZ_LIMIT, actual: jsGz }],
   limits: ['No real money moves. Sends are simulated.', 'No real group has used this yet.'],
@@ -48,6 +56,7 @@ const evidence = {
 
 const problems = validateEvidence(evidence)
 if (run.status !== 0 || passed !== total || res.numFailedTests > 0) problems.push(`tests failed (${passed}/${total})`)
+if (ev.status !== 0 || rubric.passed !== rubric.total) problems.push(`reminder eval failed (${rubric.passed}/${rubric.total})`)
 if (jsGz > JS_GZ_LIMIT) problems.push(`js-gz budget exceeded: ${jsGz} > ${JS_GZ_LIMIT}`)
 
 // Only publish evidence when everything is green.

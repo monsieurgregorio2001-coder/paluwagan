@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { formatPHP } from '../domain/money'
 import type { RiskLevel } from '../domain/risk'
 
@@ -11,7 +11,7 @@ export function RiskBadge({ level }: { level: RiskLevel }) {
   return <Badge kind={level.toLowerCase()}>{level} risk</Badge>
 }
 
-/** Money in JetBrains Mono with tabular figures. */
+/** Money in Inter with tabular figures, never mono. */
 export function Money({ value, className }: { value: number; className?: string }) {
   return <span className={`money${className ? ` ${className}` : ''}`}>{formatPHP(value)}</span>
 }
@@ -34,26 +34,37 @@ export function ErrorMsg({ message }: { message: string | null }) {
   ) : null
 }
 
-export function About() {
-  return (
-    <section className="about" aria-labelledby="about-h">
-      <h2 id="about-h" className="section-title">About this project</h2>
-      <dl className="case">
-        <div>
-          <dt>Problem</dt>
-          <dd>Paluwagan groups run on chat threads and memory, so late payments and disputes are common.</dd>
-        </div>
-        <div>
-          <dt>Build</dt>
-          <dd>Append-only ledger in integer centavos, seeded payout draw, rule-based risk flags, and pre-written reminder templates a person approves, in English and Filipino.</dd>
-        </div>
-        <div>
-          <dt>Result</dt>
-          <dd>{ABOUT_RESULT}</dd>
-        </div>
-      </dl>
-    </section>
-  )
+/** True when the house is in Calm: motion off, or the OS asks for reduced motion and nothing is stored. */
+export function isCalm(): boolean {
+  const m = document.documentElement.dataset.motion
+  return m === 'calm' || (m !== 'full' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 }
 
-export const ABOUT_RESULT = '53 tests, including 12,000 randomized ledger operations that always reconcile.'
+/** A native modal dialog. The browser traps focus and returns it to the opener on close, so nothing here calls focus(). */
+export function ConfirmDialog({ open, title, confirmLabel, cancelLabel = 'Cancel', onConfirm, onCancel, children }: {
+  open: boolean
+  title: string
+  confirmLabel: string
+  cancelLabel?: string
+  onConfirm: () => void
+  onCancel: () => void
+  children: ReactNode
+}) {
+  const ref = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const d = ref.current
+    if (!d) return
+    if (open && !d.open) d.showModal()
+    if (!open && d.open) d.close()
+  }, [open])
+  return (
+    <dialog ref={ref} className="confirm" aria-labelledby="confirm-h" onCancel={(e) => { e.preventDefault(); onCancel() }} onClose={() => { if (open) onCancel() }}>
+      <h2 id="confirm-h" className="card-title">{title}</h2>
+      <div className="confirm-body">{children}</div>
+      <div className="row">
+        <button type="button" className="btn primary" onClick={onConfirm}>{confirmLabel}</button>
+        <button type="button" className="btn" onClick={onCancel}>{cancelLabel}</button>
+      </div>
+    </dialog>
+  )
+}

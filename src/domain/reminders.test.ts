@@ -4,7 +4,7 @@ import {
 } from './reminders'
 import { assessRisk } from './risk'
 
-const vars = { name: 'Liza Mercado', amount: '₱1,000.00', dueDate: 'Mar 8, 2026', groupName: 'Barkada Weekly Ipon' }
+const vars = { name: 'Liza Mercado', amount: '₱1,000.00', dueDate: 'Mar 8, 2026', groupName: 'Barkada Weekly Ipon', cycle: '2' }
 const base = { groupId: 'g', memberId: 'm', memberName: 'Liza', cycle: 2 }
 
 describe('reminder templates', () => {

@@ -1,11 +1,20 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './ui/App'
-import './fonts.css'
 import './styles.css'
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('app')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
 )
+
+// The static shell in index.html is the first paint. Once React is on screen it fades out and leaves the layout.
+const shell = document.getElementById('room-hero')
+if (shell) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    shell.setAttribute('aria-hidden', 'true')
+    shell.classList.add('is-leaving')
+    window.setTimeout(() => shell.remove(), 400)
+  }))
+}

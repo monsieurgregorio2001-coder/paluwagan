@@ -5,7 +5,7 @@ import { activePayout, effectiveContribution, isActive, reversedIds } from '../d
 import { formatPHP, parsePesos } from '../domain/money'
 import type { ContributionStatus, Entry, Group } from '../domain/types'
 import type { GroupInfo } from './groupInfo'
-import { Badge, ErrorMsg, Money } from './shared'
+import { Badge, ConfirmDialog, ErrorMsg, Money } from './shared'
 
 const STATUS_LABEL: Record<ContributionStatus, string> = { on_time: 'Paid on time', late: 'Paid late', missed: 'Missed' }
 const plain = (c: number) => formatPHP(c).replace(/,/g, '')
@@ -22,6 +22,8 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
   const [reversing, setReversing] = useState<string | null>(null)
   const [reason, setReason] = useState('')
   const [revError, setRevError] = useState<string | null>(null)
+  const [confirmPayout, setConfirmPayout] = useState(false)
+  const [refused, setRefused] = useState<string | null>(null)
   const nameOf = (id: string) => group.members.find((m) => m.id === id)?.name ?? id
 
   const open = info.arrears.filter((a) => a.outstanding > 0)
@@ -34,6 +36,11 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
   const [arrError, setArrError] = useState<string | null>(null)
   const [arrDone, setArrDone] = useState<string | null>(null)
   const selected = open.find((a) => `${a.memberId}|${a.cycle}` === arrKey) ?? open[0]
+
+  // An error belongs to the thing that caused it. Changing what you are working on clears it.
+  useEffect(() => { setError(null); setPayError(null) }, [cycle, memberId, status, amount, paidDate])
+  useEffect(() => { setArrError(null); setArrDone(null) }, [arrKey, arrAmount])
+  useEffect(() => { setRevError(null) }, [reversing, reason])
 
   useEffect(() => {
     if (focus?.startsWith('arrears')) document.getElementById('arrears-h')?.scrollIntoView({ block: 'start' })
@@ -57,7 +64,7 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
     setError(err)
   }
 
-  const doPayout = () => setPayError(actions.recordPayout(group.id, { cycle, memberId: row.recipient.id, amount: defaultPayout, note: 'Pot released to recipient' }))
+  const doPayout = () => { setConfirmPayout(false); setPayError(actions.recordPayout(group.id, { cycle, memberId: row.recipient.id, amount: defaultPayout, note: 'Pot released to recipient' })) }
 
   const submitArrears = (e: FormEvent) => {
     e.preventDefault()
@@ -172,7 +179,10 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
             <p>Recipient: <strong>{row.recipient.name}</strong>. Available to pay out: <Money value={defaultPayout} /> of a full pot of <Money value={info.potSize} />.</p>
             {defaultPayout < info.potSize && <p className="notice">The pot is short because some contributions are missing. The payout is limited to what the ledger holds, and the missing amount stays as arrears.</p>}
             <ErrorMsg message={payError} />
-            <button className="btn primary" onClick={doPayout} disabled={defaultPayout <= 0}>Record payout</button>
+            <button className="btn primary" onClick={() => (defaultPayout < info.potSize ? setConfirmPayout(true) : doPayout())} disabled={defaultPayout <= 0}>Record payout</button>
+            <ConfirmDialog open={confirmPayout} title="Release a short pot?" confirmLabel="Release short pot" onCancel={() => setConfirmPayout(false)} onConfirm={doPayout}>
+              <p>{row.recipient.name} would receive <Money value={defaultPayout} /> of a full pot of <Money value={info.potSize} />. Short by <Money value={info.potSize - defaultPayout} />. A payout can only be corrected with a reversal.</p>
+            </ConfirmDialog>
           </>
         )}
       </section>
@@ -253,8 +263,12 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
                     </td>
                     <td data-label="" className="action-cell">
                       {isActive(e, rev) && reversing !== e.id && (
-                        <button className="btn small" onClick={() => { setReversing(e.id); setReason(''); setRevError(null) }} aria-label={`Reverse entry ${e.id}`}>Reverse</button>
+                        <div className="row end">
+                          <button className="btn small" onClick={() => setRefused(e.id)} aria-label={`Edit entry ${e.id}`}>Edit entry</button>
+                          <button className="btn small" onClick={() => { setReversing(e.id); setRefused(null); setReason(''); setRevError(null) }} aria-label={`Write a reversal for entry ${e.id}`}>Write a reversal</button>
+                        </div>
                       )}
+                      {refused === e.id && reversing !== e.id && <div className="notice refusal" role="status">Entries cannot be edited. Write a reversal.</div>}
                       {reversing === e.id && (
                         <div className="reverse-box">
                           <label htmlFor={`why-${e.id}`}>Reason for reversing {e.id}</label>

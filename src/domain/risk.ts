@@ -1,5 +1,5 @@
 import { diffDays } from './dates'
-import { effectiveContribution } from './ledger'
+import { arrearsOutstanding, effectiveContribution } from './ledger'
 import { currentCycle, type ScheduleRow } from './rotation'
 import type { Entry } from './types'
 
@@ -79,7 +79,10 @@ export function buildHistory(
   return out
 }
 
-/** The most recent cycle (up to the current one) with no active payment, or null if the member is paid up. */
+/**
+ * The most recent cycle (up to the current one) where the member still owes money, or null if they are paid up.
+ * That is a cycle with no active payment, a missed one, or a short payment whose arrears are not settled.
+ */
 export function outstandingCycle(
   schedule: readonly ScheduleRow[],
   entries: readonly Entry[],
@@ -90,7 +93,7 @@ export function outstandingCycle(
   if (!started) return null
   for (let c = current; c >= 1; c--) {
     const eff = effectiveContribution(entries, memberId, c)
-    if (!eff || eff.status === 'missed') {
+    if (!eff || eff.status === 'missed' || arrearsOutstanding(entries, memberId, c) > 0) {
       // A cycle that is not yet due today is not outstanding.
       if (schedule[c - 1].dueDate < today || c < current) return c
     }
