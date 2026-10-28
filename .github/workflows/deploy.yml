@@ -17,13 +17,22 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HOUSE_DIR: ${{ github.workspace }}/hub
     steps:
       - uses: actions/checkout@v4
+      # House 2.0.0, pinned by commit because tags cannot be created yet. Public repo, no secret.
+      - uses: actions/checkout@v4
+        with:
+          repository: monsieurgregorio2001-coder/monsieurgregorio2001-coder.github.io
+          ref: 8938fa639a4edab03948da56d69fc0a50f7f94ae
+          path: hub
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run house:check
       - run: npm run typecheck
       - run: npm run build
       # Runs the tests, checks the JS budget, writes dist/evidence.json. Fails the job on either.

@@ -10,7 +10,7 @@ A rotating savings group manager with a tested money ledger, rule-based risk fla
 
 - **Problem:** Paluwagan groups run on chat threads and memory, so late payments and disputes are common.
 - **Build:** Append-only ledger in integer centavos, seeded payout draw, rule-based risk flags, and pre-written reminder templates a person approves, in English and Filipino.
-- **Result:** 53 tests, including 12,000 randomized ledger operations that always reconcile.
+- **Result:** the test and eval counts are written by CI into `evidence.json` and shown on the page under Receipt.
 
 **Live demo:** https://monsieurgregorio2001-coder.github.io/paluwagan/
 
@@ -20,7 +20,9 @@ A paluwagan is a Filipino savings circle. Members contribute a fixed amount each
 
 ## Features
 
-- Demo banner on every screen.
+- A demo label on every screen, and the house crumb and footer (house 2.0.0, pinned in `house.lock.json`).
+- **Check the books, then try to cheat them.** The ledger, the cycle state and each member's stub are written together. The check compares them cycle by cycle, and a forged line on your own copy is caught.
+- Reminder inbox (Draft, Approved, Sent simulated) with a confirm dialog, scored by `npm run eval:reminders`.
 - Two seeded groups (6 members weekly at PHP 1,000 and 10 members monthly at PHP 5,000), always mid-round with late and missed payments. Seeds are generated relative to today.
 - Create a group with members, amount, frequency, start date, and a manual or seeded payout order. The seed is shown so the draw can be checked.
 - Dashboard with current cycle, who receives now and next, pot held, amount collected, and a dated schedule.
@@ -69,7 +71,8 @@ The UI never does money math. It calls pure domain functions that the tests cove
 npm install
 npm run dev        # development server
 npm test           # vitest
-npm run build      # type check and production build into dist/
+npm run build      # type check and production build into dist/ (needs HOUSE_DIR, a checkout of the hub)
+npm run eval:reminders
 npm run preview    # serve the build at http://localhost:4173/paluwagan/
 ```
 
@@ -83,7 +86,7 @@ Node 18.20 or newer works. The app is served under the `/paluwagan/` base path.
 
 ## Credits
 
-Built by Garfield Greg Lim III. [Portfolio](https://monsieurgregorio2001-coder.github.io/). Fonts: Fraunces, Inter, and JetBrains Mono through Fontsource, under the SIL Open Font License.
+Built by Garfield Greg Lim III. [Portfolio](https://monsieurgregorio2001-coder.github.io/). Fonts: Fraunces and Inter from the house layer, under the SIL Open Font License.
 
 ## Development conventions
 

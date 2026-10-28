@@ -1,17 +1,107 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-room="paluwagan">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Online Paluwagan is a demo of a rotating savings group manager with a tested ledger, risk flags, a seeded payout draw and pre-written reminder templates a person approves." />
+    <!-- house:boot --><script>(function(){var d=document.documentElement,m;try{m=localStorage.getItem("house.motion")}catch(e){}d.dataset.motion=m=="full"||m=="calm"?m:matchMedia("(prefers-reduced-motion:reduce)").matches?"calm":"full"})()</script><!-- /house:boot -->
+    <title>Online Paluwagan · Garfield Lim</title>
+    <meta name="description" content="A demo savings circle. Every peso is a line in the passbook. Check the books, then try to cheat them." />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f0f12" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232340b8'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E" />
-    <title>Online Paluwagan (demo)</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2331835d'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E" />
+    <link rel="expect" href="#room-hero" blocking="render" />
+    <link rel="preload" href="/house/2.0.0/fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/house/2.0.0/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- The house stylesheets and house.js are added by the Vite config (vite.config.ts), because Vite drops external /house/ tags. -->
   </head>
   <body>
-    <div id="root"></div>
+    <a class="house-skip" href="#main">Skip to content</a>
+    <!-- house:crumb -->
+<header class="house-crumb" data-house-crumb>
+  <div class="house-crumb-inner">
+    <a class="house-wordmark" href="/">Garfield Lim</a>
+    <span class="house-crumb-sep" aria-hidden="true">/</span><a class="house-crumb-room" href="/paluwagan/" aria-current="page">Online Paluwagan</a>
+    <span class="house-crumb-spacer"></span>
+    <nav class="house-crumb-links" aria-label="Sections"><a href="/#work">Work</a><a href="/#about">About</a><a href="/#contact">Contact</a></nav>
+    <span class="house-crumb-action" data-house-action></span>
+    <a class="house-capsule is-ghost" href="mailto:lim.ggreg@outlook.com">Email</a>
+    <button type="button" class="house-capsule is-ghost house-menu-btn" popovertarget="house-menu" aria-expanded="false" aria-controls="house-menu">Menu</button>
+    <div id="house-menu" class="house-menu" popover>
+  <p class="house-menu-h" id="house-menu-rooms">Rooms</p>
+  <ul aria-labelledby="house-menu-rooms">
+    <li><a href="/paperlab/">PaperLab</a></li>
+    <li><a href="/mindmap-mcp/">Living Mindmap</a></li>
+    <li><a href="/slop-editorial/">Slop Editorial</a></li>
+    <li><a href="/paluwagan/">Online Paluwagan</a></li>
+  </ul>
+  <p class="house-menu-h" id="house-menu-pages">The house</p>
+  <ul aria-labelledby="house-menu-pages">
+    <li><a href="/#work">Work</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+  <p class="house-menu-h" id="house-menu-out">Elsewhere</p>
+  <ul aria-labelledby="house-menu-out">
+    <li><a href="https://www.linkedin.com/in/garfield-lim-8239242a9">LinkedIn</a></li>
+    <li><a href="https://github.com/monsieurgregorio2001-coder">GitHub</a></li>
+  </ul>
+  <p class="house-menu-h" id="house-menu-set">Settings</p>
+  <ul aria-labelledby="house-menu-set">
+    <li><button type="button" data-house-calm aria-pressed="false">Calm motion <span class="house-switch-state" data-state>Off</span></button></li>
+    <li><a href="/index.md" data-house-plain>Plain text</a></li>
+  </ul>
+</div>
+  </div>
+</header>
+<!-- /house:crumb -->
+    <main id="main" tabindex="-1">
+      <div class="stage">
+        <section id="room-hero" class="room-hero" aria-labelledby="room-hero-h">
+          <div class="wrap">
+            <p class="house-label">Demo group · No real money · Sends are simulated</p>
+            <h1 id="room-hero-h" class="display">Barkada Weekly Ipon</h1>
+            <p class="lead">A demo savings circle. Every peso is a line in the passbook.</p>
+            <div class="hero-poster" aria-hidden="true"></div>
+            <noscript><p class="lead">This room runs the books in your browser, so it needs JavaScript. Nothing here is stored anywhere else.</p></noscript>
+          </div>
+        </section>
+        <div id="app"></div>
+      </div>
+    </main>
+    <!-- house:footer -->
+<footer class="house-footer" data-house-footer>
+  <div class="house-footer-inner">
+    <ul class="house-footer-links">
+      <li><a href="/changelog/">House 2.0.0</a></li>
+      <li><a href="/colophon/">Colophon</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+      <li><a href="/index.md" data-house-plain>Plain text</a></li>
+    </ul>
+    <div>
+      <button type="button" class="house-switch" data-house-calm aria-pressed="false">
+        <span class="house-switch-track" aria-hidden="true"><span class="house-switch-thumb"></span></span>
+        <span>Calm motion</span> <span class="house-switch-state" data-state>Off</span>
+      </button>
+    </div>
+    <details class="house-drawer" data-house-receipts data-house-version="2.0.0">
+      <summary>Live receipts</summary>
+      <div class="house-drawer-body">
+        <dl class="house-live">
+          <div><dt>Bytes transferred</dt><dd data-r="bytes">not reported by this browser</dd></div>
+          <div><dt>Largest paint</dt><dd data-r="lcp">not reported by this browser</dd></div>
+          <div><dt>Layout shift</dt><dd data-r="cls">not reported by this browser</dd></div>
+          <div><dt>Slowest interaction</dt><dd data-r="inp">not reported by this browser</dd></div>
+          <div><dt>House version</dt><dd data-r="version" data-r-ok>2.0.0</dd></div>
+          <div><dt>Commit</dt><dd data-r="commit">not reported by this page</dd></div>
+          <div><dt>Build date</dt><dd data-r="built">not reported by this page</dd></div>
+        </dl>
+      </div>
+    </details>
+    <p class="house-footer-meta">Measured in your browser. Nothing is stored or sent.</p>
+  </div>
+</footer>
+<!-- /house:footer -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
