@@ -11,3 +11,6 @@ Lines for the hub's house/MOTION.md, which lists every animation in every repo. 
 | Cycle stepping | The check reveals one cycle every 260 ms. | timer | All cycles show at once. |
 | Shell crossfade | The static #room-hero fades out as React takes over. | `--h-dur-quick`, `--h-ease-out` | 160 ms. |
 | Page fade in | A route's content fades in. | `--h-dur-quick`, `--h-ease-out` | 160 ms. |
+| Card shadow | A card's shadow eases on hover. | `--h-dur-quick`, `--h-ease-out` | Colour change only, no movement. |
+| Control and field colour | Background and border colour ease on hover and focus. | `--h-dur-quick`, `--h-ease-out` | Colour change only, no movement. |
+| Tab colour | The tab label colour eases when selected. | `--h-dur-quick`, `--h-ease-out` | Colour change only, no movement. |

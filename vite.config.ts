@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react'
 
 // The house Vite plugin marks /house/ external and serves it from HOUSE_DIR in dev (DIRECTION 4.2).
 const houseDir = resolve(process.env.HOUSE_DIR || join(__dirname, '..', 'monsieurgregorio2001-coder.github.io'))
-const pluginFile = join(houseDir, 'house', '2.0.0', 'tools', 'vite-plugin.mjs')
+const pluginFile = join(houseDir, 'house', '2.0.1', 'tools', 'vite-plugin.mjs')
 const plugins: PluginOption[] = [react()]
 if (existsSync(pluginFile)) {
   const mod = await import(pathToFileURL(pluginFile).href)
@@ -22,8 +22,8 @@ const houseTags: PluginOption = {
   transformIndexHtml: {
     order: 'post',
     handler(html) {
-      const css = '<link rel="stylesheet" href="/house/2.0.0/tokens.css" />\n    <link rel="stylesheet" href="/house/2.0.0/house.css" />\n    '
-      const js = '<script type="module" src="/house/2.0.0/house.js"></script>\n  '
+      const css = '<link rel="stylesheet" href="/house/2.0.1/tokens.css" />\n    <link rel="stylesheet" href="/house/2.0.1/house.css" />\n    '
+      const js = '<script type="module" src="/house/2.0.1/house.js"></script>\n  '
       const at = html.search(/<link rel="stylesheet"[^>]*assets\//)
       const withCss = at >= 0 ? html.slice(0, at) + css + html.slice(at) : html.replace('</head>', css + '</head>')
       return withCss.replace('</head>', js + '</head>')
