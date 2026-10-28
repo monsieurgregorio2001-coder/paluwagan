@@ -21,11 +21,11 @@ jobs:
       HOUSE_DIR: ${{ github.workspace }}/hub
     steps:
       - uses: actions/checkout@v4
-      # House 2.0.0, pinned by commit because tags cannot be created yet. Public repo, no secret.
+      # House 2.0.1, pinned by commit because tags cannot be created yet. Public repo, no secret.
       - uses: actions/checkout@v4
         with:
           repository: monsieurgregorio2001-coder/monsieurgregorio2001-coder.github.io
-          ref: 8938fa639a4edab03948da56d69fc0a50f7f94ae
+          ref: 6b2ee826c1fc654373dd9952ba70732e923a8bbf
           path: hub
       - uses: actions/setup-node@v4
         with:

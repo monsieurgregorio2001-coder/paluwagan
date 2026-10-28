@@ -10,7 +10,7 @@ See [README](../README.md) for setup and detailed architecture.
 
 ## Current context
 
-Keep ledger rules and money invariants explicit when changing behavior. The passbook redesign (phase 3b) joins house 2.0.0: set HOUSE_DIR to a hub checkout before building. See docs/MOTION.md for the room's animations.
+Keep ledger rules and money invariants explicit when changing behavior. The passbook redesign (phase 3b) joins house 2.0.1: set HOUSE_DIR to a hub checkout before building. See docs/MOTION.md for the room's animations.
 
 [Shared current state](../../monsieurgregorio2001-coder.github.io/docs/portfolio/CURRENT-STATE.md) holds cross-project priorities. [Workflow](../../monsieurgregorio2001-coder.github.io/docs/portfolio/WORKFLOW.md) keeps documentation proportional. Formatting defaults are in .editorconfig. This checkpoint's documentation/config changes are local and uncommitted.
 

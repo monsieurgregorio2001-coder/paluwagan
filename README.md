@@ -20,7 +20,7 @@ A paluwagan is a Filipino savings circle. Members contribute a fixed amount each
 
 ## Features
 
-- A demo label on every screen, and the house crumb and footer (house 2.0.0, pinned in `house.lock.json`).
+- A demo label on every screen, and the house crumb and footer (house 2.0.1, pinned in `house.lock.json`).
 - **Check the books, then try to cheat them.** The ledger, the cycle state and each member's stub are written together. The check compares them cycle by cycle, and a forged line on your own copy is caught.
 - Reminder inbox (Draft, Approved, Sent simulated) with a confirm dialog, scored by `npm run eval:reminders`.
 - Two seeded groups (6 members weekly at PHP 1,000 and 10 members monthly at PHP 5,000), always mid-round with late and missed payments. Seeds are generated relative to today.

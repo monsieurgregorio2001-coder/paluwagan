@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const houseDir = resolve(process.env.HOUSE_DIR || join(root, '..', 'monsieurgregorio2001-coder.github.io'))
-const version = existsSync(join(root, 'house.lock.json')) ? JSON.parse(readFileSync(join(root, 'house.lock.json'), 'utf8')).version : '2.0.0'
+const version = existsSync(join(root, 'house.lock.json')) ? JSON.parse(readFileSync(join(root, 'house.lock.json'), 'utf8')).version : '2.0.1'
 const tool = join(houseDir, 'house', version, 'tools', 'house-sync.mjs')
 if (!existsSync(tool)) { console.error(`house: ${tool} not found. Set HOUSE_DIR to a checkout of the hub at the pinned commit.`); process.exit(1) }
 const room = ['--room', 'paluwagan']
