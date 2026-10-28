@@ -113,6 +113,7 @@ main:focus { outline: none; }
 
 /* Stat row */
 .stats { display: grid; gap: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+@media (max-width: 899px) { .stats > .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 @media (min-width: 900px) { .stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 .stat { padding: 16px; min-width: 0; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-right: -1px; margin-bottom: -1px; }
 .stat .label { color: var(--muted); font-size: 0.8125rem; font-weight: 500; margin-bottom: 4px; }
@@ -181,7 +182,9 @@ legend { font-weight: 600; padding: 0 8px; }
 /* Tables */
 .table-wrap { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; font-size: 0.9375rem; }
-th, td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; overflow-wrap: anywhere; }
+th, td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.nowrap, td.mono-cell, td .badge, td .btn, .action-cell { white-space: nowrap; }
+td.details { overflow-wrap: anywhere; min-width: 160px; }
 th { color: var(--muted); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.02em; padding-top: 8px; padding-bottom: 8px; }
 tbody tr:last-child td { border-bottom: 0; }
 th.num, td.num { text-align: right; padding-left: 12px; padding-right: 24px; }
@@ -207,7 +210,7 @@ tr.reversed .amount { text-decoration: line-through; }
   table.stack td > div.status-note { text-align: right; }
   table.stack td.action-cell { justify-content: flex-end; }
   tr.current-row td { background: transparent; }
-  tr.current-row { background: var(--accent-wash); margin-inline: -8px; padding-inline: 8px; border-radius: 8px; }
+  table.stack tr.current-row { background: var(--accent-wash); box-sizing: border-box; padding: 12px 8px; border-radius: 8px; box-shadow: inset 3px 0 0 var(--accent); }
   tr.current-row td:first-child { box-shadow: none; padding-left: 0; }
 }
 

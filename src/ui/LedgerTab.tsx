@@ -235,7 +235,7 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
                 return (
                   <tr key={e.id} className={done ? 'reversed' : undefined}>
                     <td data-label="Entry" className="mono-cell">{e.id}</td>
-                    <td data-label="Type">
+                    <td data-label="Type" className="nowrap">
                       {e.type === 'reversal' ? <Badge kind="reversal">Reversal of {e.reverses}</Badge>
                         : e.type === 'payout' ? <Badge kind="neutral">Payout</Badge>
                         : e.type === 'arrears' ? <Badge kind="arrears">Arrears</Badge>
@@ -244,7 +244,7 @@ export function LedgerTab({ group, entries, info, today, focus }: { group: Group
                     <td data-label="Member">{nameOf(e.memberId)}</td>
                     <td data-label="Cycle" className="mono-cell">{e.cycle}</td>
                     <td data-label="Amount" className="num amount">{e.amount ? <><span aria-hidden="true">{sign(e)}</span><span className="sr-only">{sign(e) === '+' ? 'plus ' : 'minus '}</span><Money value={e.amount} /></> : <span className="muted">none</span>}</td>
-                    <td data-label="Details" className="small muted">
+                    <td data-label="Details" className="small muted details">
                       {formatStamp(e.ts)}
                       {e.paidDate && e.status === 'late' ? `, paid ${formatDate(e.paidDate)}` : ''}
                       {e.shortfall ? <>, <Money value={e.shortfall} /> arrears created</> : ''}

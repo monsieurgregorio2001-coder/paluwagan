@@ -105,6 +105,13 @@ export function arrearsOutstanding(entries: readonly Entry[], memberId: string, 
   return arrearsItems(entries).find((i) => i.memberId === memberId && i.cycle === cycle)?.outstanding ?? 0
 }
 
+/** What a member still owes for a cycle: the contribution minus what they have paid and settled, never below zero. */
+export function cycleOutstanding(entries: readonly Entry[], memberId: string, cycle: number, contribution: number): number {
+  const paid = effectiveContribution(entries, memberId, cycle)?.amount ?? 0
+  const settled = arrearsItems(entries).find((i) => i.memberId === memberId && i.cycle === cycle)?.settled ?? 0
+  return Math.max(0, contribution - paid - settled)
+}
+
 /** Total arrears still owed by a member across all cycles. */
 export function memberArrears(entries: readonly Entry[], memberId: string): number {
   return arrearsItems(entries).filter((i) => i.memberId === memberId).reduce((t, i) => t + i.outstanding, 0)

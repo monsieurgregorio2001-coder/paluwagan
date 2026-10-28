@@ -45,7 +45,7 @@ export function About() {
         </div>
         <div>
           <dt>Build</dt>
-          <dd>Append-only ledger in integer centavos, seeded fair rotation, rule-based risk flags, and human-approved reminder drafts in English and Filipino.</dd>
+          <dd>Append-only ledger in integer centavos, seeded payout draw, rule-based risk flags, and pre-written reminder templates a person approves, in English and Filipino.</dd>
         </div>
         <div>
           <dt>Result</dt>

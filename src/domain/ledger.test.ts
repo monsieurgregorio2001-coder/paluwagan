@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  LedgerError, activePayout, arrearsItems, arrearsOutstanding, cycleShortfall, effectiveContribution, memberArrears, reconciles, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, summarize,
+  LedgerError, activePayout, arrearsItems, arrearsOutstanding, cycleOutstanding, cycleShortfall, effectiveContribution, memberArrears, reconciles, recordArrearsPayment, recordContribution, recordPayout, reverseEntry, summarize,
 } from './ledger'
 import { addDays } from './dates'
 import { makeRng } from './rotation'
@@ -231,5 +231,23 @@ describe('arrears', () => {
     expect(summarize(e)).toEqual({ contributions: s.contributions - due, payouts: s.payouts - due, potBalance: s.potBalance })
     expect(arrearsOutstanding(e, 'a', 1)).toBe(due)
     expect(reconciles(e)).toBe(true)
+  })
+})
+
+describe('cycleOutstanding', () => {
+  it('quotes the full contribution when nothing is recorded', () => {
+    expect(cycleOutstanding([], 'a', 1, 100000)).toBe(100000)
+  })
+
+  it('quotes the remainder after an underpayment and after arrears payments', () => {
+    let e: Entry[] = recordContribution([], { ...base, status: 'on_time', amount: 60000, expected: 100000 }, T)
+    expect(cycleOutstanding(e, 'a', 1, 100000)).toBe(40000)
+    e = recordArrearsPayment(e, { cycle: 1, memberId: 'a', amount: 15000 }, T)
+    expect(cycleOutstanding(e, 'a', 1, 100000)).toBe(25000)
+  })
+
+  it('is zero when paid in full', () => {
+    const e = recordContribution([], { ...base, status: 'on_time', amount: 100000, expected: 100000 }, T)
+    expect(cycleOutstanding(e, 'a', 1, 100000)).toBe(0)
   })
 })

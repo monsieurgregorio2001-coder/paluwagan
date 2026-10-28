@@ -1,6 +1,6 @@
 # Online Paluwagan
 
-A rotating savings group manager with a tested money ledger, rule-based risk flags, and human-approved reminder drafts.
+A rotating savings group manager with a tested money ledger, rule-based risk flags, and pre-written reminder templates a person approves.
 
 [![Online Paluwagan dashboard showing the cycle schedule with a short payout](docs/hero.png)](https://monsieurgregorio2001-coder.github.io/paluwagan/)
 
@@ -9,7 +9,7 @@ A rotating savings group manager with a tested money ledger, rule-based risk fla
 ## In 30 seconds
 
 - **Problem:** Paluwagan groups run on chat threads and memory, so late payments and disputes are common.
-- **Build:** Append-only ledger in integer centavos, seeded fair rotation, rule-based risk flags, and human-approved reminder drafts in English and Filipino.
+- **Build:** Append-only ledger in integer centavos, seeded payout draw, rule-based risk flags, and pre-written reminder templates a person approves, in English and Filipino.
 - **Result:** 53 tests, including 12,000 randomized ledger operations that always reconcile.
 
 **Live demo:** https://monsieurgregorio2001-coder.github.io/paluwagan/
@@ -77,9 +77,8 @@ Node 18.20 or newer works. The app is served under the `/paluwagan/` base path.
 
 ## Tests and measured results
 
-- **Vitest:** 53 tests in 6 files, all passing. The ledger property test runs 12,000 random operations (40 seeds, 300 each) across contributions, payouts, arrears payments, and reversals. After every step it checks reconciliation, a non-negative pot, non-negative arrears, and append-only behavior. Other tests cover rotation fairness, risk levels, reminder templates, seed data, and currency formatting.
+- **Vitest:** 53 tests in 6 files, all passing. The ledger property test runs 12,000 random operations (40 seeds, 300 each) across contributions, payouts, arrears payments, and reversals. After every step it checks reconciliation, a non-negative pot, non-negative arrears, and append-only behavior. Other tests cover the seeded payout draw, risk levels, reminder templates, seed data, and currency formatting.
 - **Build:** gzipped initial load is about 65.9 kB (JS 61.2 kB, CSS 4.1 kB, HTML 0.6 kB). Self-hosted fonts load separately and only the subsets in use are fetched.
-- **Lighthouse (mobile preset, `vite preview`):** Performance 95, Accessibility 100, Best Practices 100, SEO 100.
 - **Accessibility:** axe finds no WCAG 2.1 AA violations on any route in light and dark themes. No horizontal page scroll at 360 px.
 
 ## Credits
