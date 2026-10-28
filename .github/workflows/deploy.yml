@@ -24,8 +24,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm test
+      - run: npm run typecheck
       - run: npm run build
+      # Runs the tests, checks the JS budget, writes dist/evidence.json. Fails the job on either.
+      - run: npm run evidence
+      - run: npm run evidence:check
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
