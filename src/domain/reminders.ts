@@ -15,7 +15,7 @@ export const TONES: Tone[] = ['polite', 'firm', 'final']
 export const LANG_LABEL: Record<Lang, string> = { en: 'English', fil: 'Filipino' }
 export const TONE_LABEL: Record<Tone, string> = { polite: 'Polite', firm: 'Firm', final: 'Final' }
 
-export const AI_LABEL = 'Drafted by Claude (pre-generated for this demo)'
+export const AI_LABEL = 'These are pre-written reminder templates. I edit and approve each one. Sending is simulated.'
 
 /** Pre-written templates. Nothing here calls a model at runtime. */
 export const TEMPLATES: Record<Lang, Record<Tone, string>> = {

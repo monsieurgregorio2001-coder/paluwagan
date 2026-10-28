@@ -139,7 +139,7 @@ export function CreateGroup() {
               <button type="button" className="btn" onClick={() => setSeed(newSeed())}>Randomize order</button>
             </div>
             <p className="muted small" style={{ marginTop: 6 }}>
-              Seed in use: <strong>{seed || 'none'}</strong>. Anyone with the same seed and the same list of names gets the same order, so the draw can be checked for fairness. The seed is saved with the group.
+              Seed in use: <strong>{seed || 'none'}</strong>. Anyone with the same seed and the same list of names gets the same order, so anyone can check the draw. The seed is saved with the group.
             </p>
           </div>
         )}
