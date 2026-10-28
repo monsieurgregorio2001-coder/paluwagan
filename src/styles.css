@@ -227,7 +227,7 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Stage: the static #room-hero shell and the React app share one grid cell, so nothing shifts when React takes over. */
-.stage { display: grid; min-height: 100svh; align-content: start; }
+.stage { display: grid; min-height: max(100svh, var(--stage-h, 0px)); align-content: start; }
 .stage > * { grid-area: 1 / 1; min-width: 0; }
 .room-hero { padding-block: 32px; transition: opacity var(--h-dur-quick) var(--h-ease-out); }
 .room-hero.is-leaving { opacity: 0; pointer-events: none; }

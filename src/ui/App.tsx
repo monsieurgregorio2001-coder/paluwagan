@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { actions, useAppState } from '../data/store'
 import { isPersistent } from '../data/storage'
 import { CreateGroup } from './CreateGroup'
@@ -26,7 +26,12 @@ export function App() {
   const featured = state.groups.find((g) => g.id === 'demo-weekly') ?? state.groups[0]
 
   // A new page starts at the top. Focus is never moved: the skip link and the browser own it.
-  useEffect(() => { window.scrollTo(0, 0) }, [parts[0], parts[1]])
+  // The first run is the page load, where the browser restores scroll on Back, so only later route changes reset it.
+  const firstRoute = useRef(true)
+  useEffect(() => {
+    if (firstRoute.current) { firstRoute.current = false; return }
+    window.scrollTo(0, 0)
+  }, [parts[0], parts[1]])
 
   let page
   if (parts[0] === 'new') page = <CreateGroup />
